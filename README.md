@@ -1,6 +1,8 @@
 # Minima
 Simple formula processing sysytem on Elixir
 
+Now, under construction.
+
 ## Installation
 make clone and enter "mix minima"
 
