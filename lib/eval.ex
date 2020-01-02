@@ -79,7 +79,7 @@ defmodule Eval do
     [:-, diff(f1, x), diff(f2, x)]
   end
 
-  #-----------integra-------------------
+  #-----------integral-------------------
   def integra([:^,x,n],x) when is_integer(n) do
     [:*,[:/,1,n+1,],[:^,x,n+1]]
   end
@@ -100,7 +100,26 @@ defmodule Eval do
     [:^,:"%e",x]
   end 
 
-  
+  #---------- composit function------------------
+  def is_composit([_,arg1],x) when is_list(arg1) do
+    is_composit1(arg1,x)
+  end
+  def is_composit([_,arg1,_],x) when is_list(arg1) do
+    is_composit1(arg1,x)
+  end 
+  def is_composit([_,_,arg2],x) when is_list(arg2) do
+    is_composit1(arg2,x)
+  end 
+
+  def is_composit1(x,x) do true end
+  def is_composit1([_,arg1,arg2],x) do
+    is_composit1(arg1,x) || is_composit1(arg2,x)
+  end
+  def is_composit1([_,arg1],x) do
+    is_composit1(arg1,x)
+  end
+  def is_composit1(_,_) do false end
+
 
   #-----------simplify------------------------
   def simple(x) when is_number(x) do
@@ -191,6 +210,19 @@ defmodule Eval do
         true -> simple([:^, x1, y1])
       end
     end
+  end
+
+  def simple([:log,:"%e",x]) when is_float(x) do
+    :math.log(x)
+  end
+  def simple([:sqrt,x]) when is_float(x) do
+    :math.sqrt(x)
+  end
+  def simple([:sin,x]) when is_float(x) do
+    :math.sin(x)
+  end
+  def simple([:cos,x]) when is_float(x) do
+    :math.cos(x)
   end
 
   def simple(x) do
