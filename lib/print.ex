@@ -38,6 +38,11 @@ defmodule Print do
     IO.write(")")
   end
 
+  def print_formula([:!,x]) do
+    print_formula(x)
+    IO.write("!")
+  end
+
   def print_formula([operator, operand1, operand2]) do
     print_formula(operand1)
     IO.write(operator)

@@ -17,7 +17,7 @@ Minima ver0.01
 3
 > diff(x^3+2*x+3,x);
 3*x^2+2
-> integra(cos(x),x);
+> integrate(cos(x),x);
 sin(x)
 > quit;
 goodbye
@@ -28,7 +28,7 @@ formula;
 
 termination is ; semicolon
 
-## diferential
+## differential
 diff(formula,variable);
 
 ## integral

@@ -7,8 +7,8 @@ defmodule Eval do
     diff(fmla, arg)
   end
 
-  def eval([:integra, fmla, arg]) do
-    integra(fmla, arg)
+  def eval([:integrate, fmla, arg]) do
+    integrate(fmla, arg)
   end
 
   def eval(x) do
@@ -80,23 +80,23 @@ defmodule Eval do
   end
 
   #-----------integral-------------------
-  def integra([:^,x,n],x) when is_integer(n) do
+  def integrate([:^,x,n],x) when is_integer(n) do
     [:*,[:/,1,n+1,],[:^,x,n+1]]
   end
 
-  def integra([:/,1,x],x) do
+  def integrate([:/,1,x],x) do
     [:log,:"%e",[:abs,x]]
   end
 
-  def integra([:sin, x], x) do
+  def integrate([:sin, x], x) do
     [:-,[:cos, x]]
   end
 
-  def integra([:cos, x], x) do
+  def integrate([:cos, x], x) do
     [:sin, x]
   end
 
-  def integra([:^,:"%e",x], x) do
+  def integrate([:^,:"%e",x], x) do
     [:^,:"%e",x]
   end 
 
@@ -212,17 +212,45 @@ defmodule Eval do
     end
   end
 
+  def simple([:log,:"%e",1]) do
+    0
+  end
+  def simple([:log,:"%e",:"%e"]) do
+    1
+  end
   def simple([:log,:"%e",x]) when is_float(x) do
     :math.log(x)
   end
   def simple([:sqrt,x]) when is_float(x) do
     :math.sqrt(x)
   end
+  def simple([:sin,0]) do
+    0
+  end
+  def simple([:sin,:"%pi"]) do
+    0
+  end
+  def simple([:sin,[:/, :"%pi", 2]]) do
+    1
+  end
   def simple([:sin,x]) when is_float(x) do
     :math.sin(x)
   end
+  def simple([:cos,0]) do
+    1
+  end
+  def simple([:cos,:"%pi"]) do
+    -1
+  end
+  def simple([:cos,[:/, :"%pi", 2]]) do
+    0
+  end
   def simple([:cos,x]) when is_float(x) do
     :math.cos(x)
+  end
+
+  def simple([:!,x]) when is_integer(x) do
+    factorial(x)
   end
 
   def simple(x) do
@@ -236,4 +264,10 @@ defmodule Eval do
       true -> x * power(x, y - 1)
     end
   end
+
+  def factorial(0) do 1 end
+  def factorial(n) do
+    n * factorial(n-1)
+  end
 end
+

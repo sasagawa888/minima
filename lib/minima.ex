@@ -38,4 +38,43 @@ defmodule Minima do
   def foo(x) do
     Read.parse([],[],Read.tokenize(x),[:";"])
   end
+
+  #----------common function--------------
+  def is_operator(x) do
+    Enum.member?([:+, :-, :*, :/, :^], x)
+  end
+
+  def is_function([x|_]) do
+    Enum.member?([:sin,:cos,:tan,:log,:exp,:sqrt],x)
+  end
+
+  def is_heavy(x,_) when is_number(x) do false end
+  def is_heavy(x,_) when is_atom(x) do false end
+  def is_heavy([x|_],y) do
+    if is_operator(x) && Minima.weight(x) > Minima.weight(y) do
+      true
+    else
+      false
+    end
+  end
+
+  def weight(:+) do
+    100
+  end
+
+  def weight(:-) do
+    100
+  end
+
+  def weight(:*) do
+    50
+  end
+
+  def weight(:/) do
+    50
+  end
+
+  def weight(:^) do
+    30
+  end
 end

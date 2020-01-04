@@ -1,28 +1,4 @@
 defmodule Read do
-  def is_operator(x) do
-    Enum.member?([:+, :-, :*, :/, :^], x)
-  end
-
-  defp weight(:+) do
-    100
-  end
-
-  defp weight(:-) do
-    100
-  end
-
-  defp weight(:*) do
-    50
-  end
-
-  defp weight(:/) do
-    50
-  end
-
-  defp weight(:^) do
-    30
-  end
-
   # parse formula
   # arg1 is operand
   # arg2 is operator
@@ -35,7 +11,7 @@ defmodule Read do
 
     cond do
       Enum.member?(term, s) -> {s, buf1, s}
-      is_operator(s) -> parse([], [s], buf1, term)
+      Minima.is_operator(s) -> parse([], [s], buf1, term)
       true -> parse([s], [], buf1, term)
     end
   end
@@ -46,7 +22,7 @@ defmodule Read do
 
     cond do
       Enum.member?(term, s) -> {operand1, buf1, s}
-      is_operator(s) -> parse([operand1], [s], buf1, term)
+      Minima.is_operator(s) -> parse([operand1], [s], buf1, term)
       true -> Minima.error("Error: illegal formula1 ", s)
     end
   end
@@ -56,7 +32,7 @@ defmodule Read do
     {s, buf1} = read(buf)
 
     cond do
-      is_operator(s) -> Minima.error("Error: illegal formula2 ", [s])
+      Minima.is_operator(s) -> Minima.error("Error: illegal formula2 ", [s])
       true -> parse([s, operand1], [operator1], buf1, term)
     end
   end
@@ -69,10 +45,10 @@ defmodule Read do
       Enum.member?(term, s) ->
         {[operator1, operand2, operand1], buf1, s}
 
-      is_operator(s) && weight(s) >= weight(operator1) ->
+      Minima.is_operator(s) && Minima.weight(s) >= Minima.weight(operator1) ->
         parse([[operator1, operand2, operand1]], [s], buf1, term)
 
-      is_operator(s) && weight(s) < weight(operator1) ->
+      Minima.is_operator(s) && Minima.weight(s) < Minima.weight(operator1) ->
         parse([operand1, operand2], [s, operator1], buf1, term)
 
       true ->
@@ -86,7 +62,7 @@ defmodule Read do
 
     cond do
       Enum.member?(term, s) -> Minima.error("Error: illegal formula4 ", s)
-      is_operator(s) -> Minima.error("Error: illegal formula5 ", s)
+      Minima.is_operator(s) -> Minima.error("Error: illegal formula5 ", s)
       true -> parse([[operator2, operand2, [operator1, operand1, s]]], [], buf1, term)
     end
   end
@@ -119,6 +95,15 @@ defmodule Read do
   def read([x, "(" | xs]) do
     {arg, buf} = read_arg(xs, [])
     {[String.to_atom(x) | arg], buf}
+  end
+
+  # 10! ->  [:!, 10]
+  def read([x, "!" | xs]) do
+    cond do  
+      is_integer_str(x) -> {[:!,String.to_integer(x)], xs}
+      is_float_str(x) -> {[:!,String.to_float(x)], xs}
+      true -> {[:!,String.to_atom(x)], xs}
+    end
   end
 
   # (x+y) ... -> [:+,:x,:y]
@@ -162,6 +147,7 @@ defmodule Read do
     |> String.replace("*", " * ")
     |> String.replace("/", " / ")
     |> String.replace("^", " ^ ")
+    |> String.replace("!", " ! ")
     |> String.replace("\n", " ")
     |> String.split()
   end
