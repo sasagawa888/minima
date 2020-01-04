@@ -192,6 +192,30 @@ defmodule Eval do
     end
   end
 
+  def simple([:/,x,y]) do
+    if is_float(x) || is_float(y) do
+      x / y
+    else 
+      if is_integer(x) && is_integer(y) do
+          if rem(x,y) == 0 do 
+            div(x,y)
+          else
+            gcd = Integer.gcd(x,y)
+            [:/,div(x,gcd),div(y,gcd)]
+          end
+      else 
+        x1 = simple(x)
+        y1 = simple(y)
+        cond do
+          x1 == x && y1 == y -> [:/,x,y]
+          x1 == x && y1 != y -> simple([:/,x,y1])
+          x1 != x && y1 == y -> simple([:/,x1,y])
+          true -> simple([:/, x1, y1])
+        end 
+    end
+  end
+end
+
 
   def simple([:^, _, 0]) do
     1
@@ -283,7 +307,11 @@ defmodule Eval do
   def prime_factorization1(fac,max,n,ls) do
      #IO.inspect binding()
     cond do
-      fac > max -> [n|ls]
+      fac > max -> if n != 1 do 
+                    [n|ls]
+                  else
+                    ls
+                  end
       rem(n,fac) == 0 -> prime_factorization1(fac,max,div(n,fac),[fac|ls])
       true -> if fac == 2 do 
                 prime_factorization1(3,max,n,ls)
