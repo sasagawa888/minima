@@ -22,8 +22,7 @@ defmodule Eval do
   # ----------diffrential----------------------------
   # composit-function
   def diff(fmla, x) do
-    if false do
-    #if is_composit(fmla, x) do
+    if is_composit(fmla, x) do
       [func | arg] = fmla
       [:*, diff1([func | arg], hd(arg)), diff(hd(arg), x)]
     else
@@ -94,6 +93,10 @@ defmodule Eval do
   # f1 - f2 -> (f1)'-(f2)'
   def diff1([:-, f1, f2], x) do
     [:-, diff(f1, x), diff(f2, x)]
+  end
+
+  def diff1(_,_) do
+    0
   end
 
   # -----------integral-------------------
@@ -205,7 +208,7 @@ defmodule Eval do
     simple(x)
   end
 
-  """
+
   # distributive property
   def simple([:*, x, [:+, y1, y2]]) do
     simple([:+, [:*, x, y1], [:*, x, y2]])
@@ -239,7 +242,7 @@ defmodule Eval do
       true -> [:^,x,[:+,m,n]]
     end
   end
-  """
+
 
   def simple([:*, x, y]) do
     if is_number(x) && is_number(y) do
