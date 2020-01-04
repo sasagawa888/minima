@@ -9,7 +9,7 @@ defmodule Minima do
       IO.write("> ")
       {fmla, buf, _} = Read.parse([], [], [], [:";"])
       # IO.inspect(fmla)
-      # Eval.eval(fmla) |> Eval.simple() |> IO.inspect()
+      #Eval.eval(fmla) |> IO.inspect()
       Eval.eval(fmla) |> Eval.simple() |> Print.print()
       repl1(buf)
     catch
