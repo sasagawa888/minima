@@ -11,6 +11,10 @@ defmodule Eval do
     integrate(fmla, arg)
   end
 
+  def eval([:factori,x]) when is_integer(x) do
+    prime_factorization(x)
+  end
+
   def eval(x) do
     simple(x)
   end
@@ -269,5 +273,31 @@ defmodule Eval do
   def factorial(n) do
     n * factorial(n-1)
   end
+
+  def prime_factorization(n) do
+    ls = prime_factorization1(2,:math.sqrt(n),n,[])
+    |> compress()
+    [:list,ls]
+  end
+
+  def prime_factorization1(fac,max,n,ls) do
+     #IO.inspect binding()
+    cond do
+      fac > max -> [n|ls]
+      rem(n,fac) == 0 -> prime_factorization1(fac,max,div(n,fac),[fac|ls])
+      true -> if fac == 2 do 
+                prime_factorization1(3,max,n,ls)
+              else
+                prime_factorization1(fac+2,max,n,ls)
+              end
+    end
+  end 
+
+  def compress(ls) do
+    Enum.chunk_by(ls,fn(n) -> n end)
+    |> Enum.map(fn(x) -> [hd(x),length(x)] end)
+    |> Enum.reverse
+  end
+  
 end
 

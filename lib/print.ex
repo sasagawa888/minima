@@ -29,6 +29,10 @@ defmodule Print do
     IO.write(x)
   end
 
+  def print_formula([:list,x]) do
+    :io.write(x)
+  end
+
   def print_formula([:log,x,y]) do
     IO.write(:log)
     IO.write("(")
