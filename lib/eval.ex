@@ -22,7 +22,8 @@ defmodule Eval do
   # ----------diffrential----------------------------
   # composit-function
   def diff(fmla, x) do
-    if is_composit(fmla, x) do
+    if false do
+    #if is_composit(fmla, x) do
       [func | arg] = fmla
       [:*, diff1([func | arg], hd(arg)), diff(hd(arg), x)]
     else

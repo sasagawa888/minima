@@ -39,6 +39,10 @@ defmodule Minima do
   def foo(x) do
     Read.parse([], [], Read.tokenize(x), [:";"])
   end
+  def bar(x) do
+    {fmla,_,_} = Read.parse([], [], Read.tokenize(x), [:";"]) 
+    fmla |> Eval.eval() |> Eval.simple() |> Print.print()
+  end
 
   # ----------common function--------------
   def is_operator(x) do
