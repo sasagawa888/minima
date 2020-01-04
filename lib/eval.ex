@@ -20,66 +20,76 @@ defmodule Eval do
   end
 
   #----------diffrential----------------------------
+  # composit-function
+  def diff(fmla,x) do
+    if is_composit(fmla,x) do
+      [func|arg] = fmla
+      [:*,diff1([func|arg],hd(arg)),diff(hd(arg),x)]
+     else
+      diff1(fmla,x)
+    end
+  end
+  
   # n -> 0
-  def diff(n,_) when is_number(n) do
+  def diff1(n,_) when is_number(n) do
     0
   end
 
   # x -> 1
-  def diff(x,x) when is_atom(x) do
+  def diff1(x,x) do
     1
   end
 
   # x^n -> n*x^(n-1)
-  def diff([:^, x, n], x) when is_integer(n) do
+  def diff1([:^, x, n], x) when is_integer(n) do
     [:*, n, [:^, x, n - 1]]
   end
 
   # n*x -> n
-  def diff([:*, n, x], x) when is_integer(n) do
+  def diff1([:*, n, x], x) when is_integer(n) do
     n
   end
 
   # sin(x) -> cos(x)
-  def diff([:sin, x], x) do
+  def diff1([:sin, x], x) do
     [:cos, x]
   end
 
   # cos(x) -> -sin(x)
-  def diff([:cos, x], x) do
+  def diff1([:cos, x], x) do
     [:-, [:sin, x]]
   end
 
   # tan(x) -> 1/cos^2(x)
-  def diff([:tan, x], x) do
+  def diff1([:tan, x], x) do
     [:/, 1, [:^, [:cos, x], 2]]
   end
 
   #log(e,x) -> 1/x
-  def diff([:log, :"%e", x], x) do
+  def diff1([:log, :"%e", x], x) do
     [:/, 1, x]
   end
 
   #log(a,x) -> 1/(X*log(e,A))).
-  def diff([:log, a, x], x) do
+  def diff1([:log, a, x], x) do
     [:/,1,[:*,x,[:log,:"%e",a]]]
   end
 
   # e^x -> e^x
-  def diff([:^, :"%e", x], x) do
+  def diff1([:^, :"%e", x], x) do
     [:^, :"%e", x]
   end
 
   # a^x -> a^x*log(e,x)
-  def diff([:^, a, x], x) do
+  def diff1([:^, a, x], x) do
     [:*, [:^, a, x], [:log, "%e", a]]
   end
   # f1 + f2 -> (f1)'+(f2)'
-  def diff([:+, f1, f2], x) do
+  def diff1([:+, f1, f2], x) do
     [:+, diff(f1, x), diff(f2, x)]
   end
   # f1 - f2 -> (f1)'-(f2)'
-  def diff([:-, f1, f2], x) do
+  def diff1([:-, f1, f2], x) do
     [:-, diff(f1, x), diff(f2, x)]
   end
 
@@ -114,6 +124,7 @@ defmodule Eval do
   def is_composit([_,_,arg2],x) when is_list(arg2) do
     is_composit1(arg2,x)
   end 
+  def is_composit(_,_) do false end 
 
   def is_composit1(x,x) do true end
   def is_composit1([_,arg1,arg2],x) do
