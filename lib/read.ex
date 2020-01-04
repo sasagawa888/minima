@@ -32,7 +32,7 @@ defmodule Read do
     {s, buf1} = read(buf)
 
     cond do
-      Minima.is_operator(s) -> Minima.error("Error: illegal formula2 ", [s])
+      Minima.is_operator(s) -> Minima.error("Error: illegal formula2 ", s)
       true -> parse([s, operand1], [operator1], buf1, term)
     end
   end
@@ -91,10 +91,19 @@ defmodule Read do
     {:")", xs}
   end
 
-  # sin( ... ->  [sin,...]
+  # e.g. * (1+2)
+  # e.g. sin( ... ->  [sin,...]
+  # e.g. 1(x+1) -> error
   def read([x, "(" | xs]) do
-    {arg, buf} = read_arg(xs, [])
-    {[String.to_atom(x) | arg], buf}
+    if is_operator_str(x) do
+      {String.to_atom(x), ["("|xs]}
+    else if is_integer_str(x) || is_float_str(x) do
+      Minima.error("Illegal formula ", x)
+    else
+      {arg, buf} = read_arg(xs, [])
+      {[String.to_atom(x) | arg], buf}
+      end
+    end
   end
 
   # 10! ->  [:!, 10]
@@ -192,5 +201,9 @@ defmodule Read do
       length(z1) == 2 and is_float_str(hd(z1)) and is_integer_str(hd(tl(z1))) -> true
       true -> false
     end
+  end
+
+  def is_operator_str(x) do
+    Enum.member?(["+","-","*","/","^"],x)
   end
 end

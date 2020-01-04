@@ -188,6 +188,14 @@ defmodule Eval do
     simple(x)
   end
 
+  # distributive property
+  def simple([:*, x ,[:+,y1,y2]]) when is_number(x) do
+    simple([:+, [:*,x,y1], [:*,x,y2]])
+  end
+  def simple([:*,[:+,x1,x2] ,y]) when is_number(y) do
+    simple([:+, [:*,y,x1], [:*,y,x2]])
+  end
+
   def simple([:*, x, y]) do
     if is_number(x) && is_number(y) do
        x + y
@@ -195,7 +203,13 @@ defmodule Eval do
       x1 = simple(x)
       y1 = simple(y)
       cond do
-        x1 == x && y1 == y -> [:*,x,y]
+        x1 == x && y1 == y -> cond do 
+                                is_number(x) && !is_number(y) -> [:*,x,y]
+                                !is_number(x) && is_number(y) -> [:*,y,x]
+                                is_list(x) && !is_list(y) -> [:*,y,x]
+                                !is_list(x) && is_list(y)-> [:*,x,y]
+                                true -> [:*,x,y]
+                              end
         x1 == x && y1 != y -> simple([:*,x,y1])
         x1 != x && y1 == y -> simple([:*,x1,y])
         true -> simple([:*, x1, y1])
