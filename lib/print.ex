@@ -29,11 +29,11 @@ defmodule Print do
     IO.write(x)
   end
 
-  def print_formula([:list,x]) do
+  def print_formula([:list, x]) do
     :io.write(x)
   end
 
-  def print_formula([:log,x,y]) do
+  def print_formula([:log, x, y]) do
     IO.write(:log)
     IO.write("(")
     print_formula(x)
@@ -42,7 +42,7 @@ defmodule Print do
     IO.write(")")
   end
 
-  def print_formula([:!,x]) do
+  def print_formula([:!, x]) do
     print_formula(x)
     IO.write("!")
   end

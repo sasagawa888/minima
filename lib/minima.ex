@@ -8,8 +8,8 @@ defmodule Minima do
     try do
       IO.write("> ")
       {fmla, buf, _} = Read.parse([], [], [], [:";"])
-      #IO.inspect(fmla)
-      #Eval.eval(fmla) |> Eval.simple() |> IO.inspect()
+      # IO.inspect(fmla)
+      # Eval.eval(fmla) |> Eval.simple() |> IO.inspect()
       Eval.eval(fmla) |> Eval.simple() |> Print.print()
       repl1(buf)
     catch
@@ -37,21 +37,27 @@ defmodule Minima do
 
   # for test
   def foo(x) do
-    Read.parse([],[],Read.tokenize(x),[:";"])
+    Read.parse([], [], Read.tokenize(x), [:";"])
   end
 
-  #----------common function--------------
+  # ----------common function--------------
   def is_operator(x) do
     Enum.member?([:+, :-, :*, :/, :^], x)
   end
 
-  def is_function([x|_]) do
-    Enum.member?([:sin,:cos,:tan,:log,:exp,:sqrt],x)
+  def is_function([x | _]) do
+    Enum.member?([:sin, :cos, :tan, :log, :exp, :sqrt], x)
   end
 
-  def is_heavy(x,_) when is_number(x) do false end
-  def is_heavy(x,_) when is_atom(x) do false end
-  def is_heavy([x|_],y) do
+  def is_heavy(x, _) when is_number(x) do
+    false
+  end
+
+  def is_heavy(x, _) when is_atom(x) do
+    false
+  end
+
+  def is_heavy([x | _], y) do
     if is_operator(x) && Minima.weight(x) > Minima.weight(y) do
       true
     else

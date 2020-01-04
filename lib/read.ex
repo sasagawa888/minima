@@ -96,22 +96,23 @@ defmodule Read do
   # e.g. 1(x+1) -> error
   def read([x, "(" | xs]) do
     if is_operator_str(x) do
-      {String.to_atom(x), ["("|xs]}
-    else if is_integer_str(x) || is_float_str(x) do
-      Minima.error("Illegal formula ", x)
+      {String.to_atom(x), ["(" | xs]}
     else
-      {arg, buf} = read_arg(xs, [])
-      {[String.to_atom(x) | arg], buf}
+      if is_integer_str(x) || is_float_str(x) do
+        Minima.error("Illegal formula ", x)
+      else
+        {arg, buf} = read_arg(xs, [])
+        {[String.to_atom(x) | arg], buf}
       end
     end
   end
 
   # 10! ->  [:!, 10]
   def read([x, "!" | xs]) do
-    cond do  
-      is_integer_str(x) -> {[:!,String.to_integer(x)], xs}
-      is_float_str(x) -> {[:!,String.to_float(x)], xs}
-      true -> {[:!,String.to_atom(x)], xs}
+    cond do
+      is_integer_str(x) -> {[:!, String.to_integer(x)], xs}
+      is_float_str(x) -> {[:!, String.to_float(x)], xs}
+      true -> {[:!, String.to_atom(x)], xs}
     end
   end
 
@@ -204,6 +205,6 @@ defmodule Read do
   end
 
   def is_operator_str(x) do
-    Enum.member?(["+","-","*","/","^"],x)
+    Enum.member?(["+", "-", "*", "/", "^"], x)
   end
 end
