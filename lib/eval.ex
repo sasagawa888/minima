@@ -22,10 +22,9 @@ defmodule Eval do
   # ----------diffrential----------------------------
   # composit-function
   def diff(fmla, x) do
-    if false do
-    #if is_composit(fmla, x) do
+    if is_composit(fmla, x) do
       [func | arg] = fmla
-      [:*, diff1([func | arg], hd(arg)), diff(hd(arg), x)]
+      [:*, diff1([func | arg], hd(arg)), diff1(hd(arg), x)]
     else
       diff1(fmla, x)
     end
@@ -192,6 +191,31 @@ defmodule Eval do
     end
   end
 
+  # ---------- minus-----------------
+  def simple([:-, 0, x]) do
+    simple(x)
+  end
+
+  def simple([:-, x, 0]) do
+    simple(x)
+  end
+
+  def simple([:-, x, y]) do
+    if is_number(x) && is_number(y) do
+      x - y
+    else
+      x1 = simple(x)
+      y1 = simple(y)
+
+      cond do
+        x1 == x && y1 == y -> [:-, x, y]
+        x1 == x && y1 != y -> simple([:-, x, y1])
+        x1 != x && y1 == y -> simple([:-, x1, y])
+        true -> simple([:-, x1, y1])
+      end
+    end
+  end
+
   # ---------- multiple--------------
   def simple([:*, 0, _]) do
     0
@@ -243,6 +267,18 @@ defmodule Eval do
       true -> [:^,x,[:+,m,n]]
     end
   end
+  def simple([:*, x, [:^,x,n]]) do
+    cond do
+      is_number(n) -> [:^,x,1+n]
+      true -> [:^,x,[:+,1,n]]
+    end
+  end
+  def simple([:*, [:^,x,m], x]) do
+    cond do
+      is_number(m) -> [:^,x,m+1]
+      true -> [:^,x,[:+,m,1]]
+    end
+  end
 
 
   def simple([:*, x, y]) do
@@ -275,6 +311,25 @@ defmodule Eval do
   end
 
   # ---------- divide----------------
+  def simple([:/,[:^,x,m],[:^,x,n]]) do
+    cond do
+      is_number(m) && is_number(n) -> [:^,x,m-n]
+      true -> [:^,x,[:-,m,n]]
+    end
+  end
+  def simple([:/,[:^,x,m],x]) do
+    cond do
+      is_number(m) -> [:^,x,m-1]
+      true -> [:^,x,[:-,m,1]]
+    end
+  end
+  def simple([:/,x,[:^,x,n]]) do
+    cond do
+      is_number(n) -> [:^,x,1-n]
+      true -> [:^,x,[:-,1,n]]
+    end
+  end
+
   def simple([:/, x, y]) do
     if is_float(x) || is_float(y) do
       x / y
@@ -300,6 +355,7 @@ defmodule Eval do
     end
   end
 
+  #-------exponent--------------
   def simple([:^, _, 0]) do
     1
   end
