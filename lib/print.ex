@@ -69,6 +69,22 @@ defmodule Print do
     IO.write(")")
   end
 
+  def print_formula([function | args]) do
+    IO.write(function)
+    print_args(args)
+  end
+
+  def print_args([x]) do
+    print_formula(x)
+    IO.write(")")
+  end
+
+  def print_args([x | xs]) do
+    print_formula(x)
+    IO.write(",")
+    print_args(xs)
+  end
+
   def print_matrix([]) do
     true
   end

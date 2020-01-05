@@ -90,7 +90,10 @@ defmodule Matrix do
     mult2(x, transpose1(y))
   end
 
-  def mult2([],_) do [] end
+  def mult2([], _) do
+    []
+  end
+
   def mult2([x | xs], y) do
     [mult3(x, y) | mult2(xs, y)]
   end
@@ -103,14 +106,14 @@ defmodule Matrix do
     [inner_product(x, y) | mult3(x, ys)]
   end
 
-  def transpose([_| x]) do
+  def transpose([_ | x]) do
     [:matrix | transpose1(x)]
   end
 
   # [[1,2],    ->  [[1,3],
   #  [3,4]]         [2,4]]
   def transpose1(x) do
-    transpose2(x, 1, col_length(x)+1)
+    transpose2(x, 1, col_length(x) + 1)
   end
 
   def transpose2(_, c, c) do
@@ -119,5 +122,55 @@ defmodule Matrix do
 
   def transpose2(x, n, c) do
     [col_vector(x, n) | transpose2(x, n + 1, c)]
+  end
+
+  def determinant([_ | x]) do
+    determinant1(x)
+  end
+
+  def determinant1([[a, b], [c, d]]) do
+    a * d - b * c
+  end
+
+  def determinant1(x) do
+    size = length(x)
+
+    for j <- 1..size do
+      submatrix1(x, 1, j) |> determinant1() |> sign(x, 1, j)
+    end
+    |> Enum.sum()
+  end
+
+  def sign(x, m, i, j) do
+    s = :math.pow(-1, i + j) |> round()
+    s * elt(m, i, j) * x
+  end
+
+  def submatrix([_ | x], i, j) do
+    [:matrix | submatrix1(x, i, j)]
+  end
+
+  def submatrix1([], _, _) do
+    []
+  end
+
+  def submatrix1([_ | xs], 1, j) do
+    submatrix1(xs, 0, j)
+  end
+
+  def submatrix1([x | xs], i, j) do
+    [submatrix2(x, j) | submatrix1(xs, i - 1, j)]
+  end
+
+  def submatrix2([], _) do
+    []
+  end
+
+  def submatrix2([_ | xs], 1) do
+    xs
+  end
+
+  def submatrix2([x | xs], j) do
+    [x | submatrix2(xs, j - 1)]
   end
 end

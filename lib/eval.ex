@@ -34,9 +34,19 @@ defmodule Eval do
     {prime_factorization(x), def}
   end
 
-  def eval([:transpose,x],def) do
-    {val,_} = eval(x,def)
-    {Matrix.transpose(val),def}
+  def eval([:transpose, x], def) do
+    {val, _} = eval(x, def)
+    {Matrix.transpose(val), def}
+  end
+
+  def eval([:determinant, x], def) do
+    {val, _} = eval(x, def)
+    {Matrix.determinant(val), def}
+  end
+
+  def eval([:submatrix, x, i, j], def) do
+    {val, _} = eval(x, def)
+    {Matrix.submatrix(val, i, j), def}
   end
 
   def eval(x, def) when is_list(x) do
