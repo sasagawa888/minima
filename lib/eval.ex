@@ -1,46 +1,51 @@
 defmodule Eval do
-  def eval(:quit,_) do
+  def eval(:quit, _) do
     throw("goodbye")
   end
 
-  def eval(x,def) when is_number(x) do
-    {x,def}
+  def eval(x, def) when is_number(x) do
+    {x, def}
   end
-  def eval(x,def) when is_atom(x) do
+
+  def eval(x, def) when is_atom(x) do
     val = def[x]
+
     if val == nil do
-      {x,def}
+      {x, def}
     else
-      {val,def}
+      {val, def}
     end
   end
 
-  def eval([:":", x,y],def) do
-    def1 = Keyword.put(def,x,y)
-    {y,def1}
+  def eval([:":", x, y], def) do
+    def1 = Keyword.put(def, x, y)
+    {y, def1}
   end
 
-  def eval([:diff, fmla, arg],def) do
-    {diff(fmla, arg),def}
+  def eval([:diff, fmla, arg], def) do
+    {diff(fmla, arg), def}
   end
 
-  def eval([:integrate, fmla, arg],def) do
-    {integrate(fmla, arg),def}
+  def eval([:integrate, fmla, arg], def) do
+    {integrate(fmla, arg), def}
   end
 
-  def eval([:factori, x],def) when is_integer(x) do
-    {prime_factorization(x),def}
+  def eval([:factori, x], def) when is_integer(x) do
+    {prime_factorization(x), def}
   end
 
-  def eval(x,def) when is_list(x) do
-    [fun|arg] = x 
-    {simple([fun|evlis(arg,def)]),def}
+  def eval(x, def) when is_list(x) do
+    [fun | arg] = x
+    {simple([fun | evlis(arg, def)]), def}
   end
 
-  def evlis([],_) do [] end
-  def evlis([x|xs],def) do
-    {val,_} = eval(x,def)
-    [val|evlis(xs,def)]
+  def evlis([], _) do
+    []
+  end
+
+  def evlis([x | xs], def) do
+    {val, _} = eval(x, def)
+    [val | evlis(xs, def)]
   end
 
   # ----------diffrential----------------------------
@@ -119,7 +124,7 @@ defmodule Eval do
     [:-, diff(f1, x), diff(f2, x)]
   end
 
-  def diff1(_,_) do
+  def diff1(_, _) do
     0
   end
 
@@ -203,14 +208,18 @@ defmodule Eval do
     if is_number(x) && is_number(y) do
       x + y
     else
-      x1 = simple(x)
-      y1 = simple(y)
+      if Minima.is_matrix(x) && Minima.is_matrix(y) do
+        Matrix.add(x, y)
+      else
+        x1 = simple(x)
+        y1 = simple(y)
 
-      cond do
-        x1 == x && y1 == y -> [:+, x, y]
-        x1 == x && y1 != y -> simple([:+, x, y1])
-        x1 != x && y1 == y -> simple([:+, x1, y])
-        true -> simple([:+, x1, y1])
+        cond do
+          x1 == x && y1 == y -> [:+, x, y]
+          x1 == x && y1 != y -> simple([:+, x, y1])
+          x1 != x && y1 == y -> simple([:+, x1, y])
+          true -> simple([:+, x1, y1])
+        end
       end
     end
   end
@@ -228,14 +237,18 @@ defmodule Eval do
     if is_number(x) && is_number(y) do
       x - y
     else
-      x1 = simple(x)
-      y1 = simple(y)
+      if Minima.is_matrix(x) && Minima.is_matrix(y) do
+        Matrix.sub(x, y)
+      else
+        x1 = simple(x)
+        y1 = simple(y)
 
-      cond do
-        x1 == x && y1 == y -> [:-, x, y]
-        x1 == x && y1 != y -> simple([:-, x, y1])
-        x1 != x && y1 == y -> simple([:-, x1, y])
-        true -> simple([:-, x1, y1])
+        cond do
+          x1 == x && y1 == y -> [:-, x, y]
+          x1 == x && y1 != y -> simple([:-, x, y1])
+          x1 != x && y1 == y -> simple([:-, x1, y])
+          true -> simple([:-, x1, y1])
+        end
       end
     end
   end
@@ -257,7 +270,6 @@ defmodule Eval do
     simple(x)
   end
 
-
   # distributive property
   def simple([:*, x, [:+, y1, y2]]) do
     simple([:+, [:*, x, y1], [:*, x, y2]])
@@ -267,43 +279,44 @@ defmodule Eval do
     simple([:+, [:*, y, x1], [:*, y, x2]])
   end
 
-  #associative property
-  def simple([:*, x ,[:*, y,z]]) do
+  # associative property
+  def simple([:*, x, [:*, y, z]]) do
     cond do
-      is_number(x) && is_number(y) -> simple([:*, x*y, z])
-      is_number(x) && is_number(z) -> simple([:*, x*z, y])
-      true -> [:*, x, [:* , y,z]]
+      is_number(x) && is_number(y) -> simple([:*, x * y, z])
+      is_number(x) && is_number(z) -> simple([:*, x * z, y])
+      true -> [:*, x, [:*, y, z]]
     end
   end
 
-  def simple([:*, [:*,x,y],z]) do
+  def simple([:*, [:*, x, y], z]) do
     cond do
-      is_number(x) && is_number(z) -> simple([:*,x*z,y])
-      is_number(y) && is_number(z) -> simple([:*,y*z,x])
-      true -> [:*, [:*,x,y],z]
+      is_number(x) && is_number(z) -> simple([:*, x * z, y])
+      is_number(y) && is_number(z) -> simple([:*, y * z, x])
+      true -> [:*, [:*, x, y], z]
     end
   end
 
-  #power law
-  def simple([:*, [:^,x,m], [:^,x,n]]) do
+  # power law
+  def simple([:*, [:^, x, m], [:^, x, n]]) do
     cond do
-      is_number(m) && is_number(n) -> [:^,x,m+n]
-      true -> [:^,x,[:+,m,n]]
-    end
-  end
-  def simple([:*, x, [:^,x,n]]) do
-    cond do
-      is_number(n) -> [:^,x,1+n]
-      true -> [:^,x,[:+,1,n]]
-    end
-  end
-  def simple([:*, [:^,x,m], x]) do
-    cond do
-      is_number(m) -> [:^,x,m+1]
-      true -> [:^,x,[:+,m,1]]
+      is_number(m) && is_number(n) -> [:^, x, m + n]
+      true -> [:^, x, [:+, m, n]]
     end
   end
 
+  def simple([:*, x, [:^, x, n]]) do
+    cond do
+      is_number(n) -> [:^, x, 1 + n]
+      true -> [:^, x, [:+, 1, n]]
+    end
+  end
+
+  def simple([:*, [:^, x, m], x]) do
+    cond do
+      is_number(m) -> [:^, x, m + 1]
+      true -> [:^, x, [:+, m, 1]]
+    end
+  end
 
   def simple([:*, x, y]) do
     if is_number(x) && is_number(y) do
@@ -335,22 +348,24 @@ defmodule Eval do
   end
 
   # ---------- divide----------------
-  def simple([:/,[:^,x,m],[:^,x,n]]) do
+  def simple([:/, [:^, x, m], [:^, x, n]]) do
     cond do
-      is_number(m) && is_number(n) -> [:^,x,m-n]
-      true -> [:^,x,[:-,m,n]]
+      is_number(m) && is_number(n) -> [:^, x, m - n]
+      true -> [:^, x, [:-, m, n]]
     end
   end
-  def simple([:/,[:^,x,m],x]) do
+
+  def simple([:/, [:^, x, m], x]) do
     cond do
-      is_number(m) -> [:^,x,m-1]
-      true -> [:^,x,[:-,m,1]]
+      is_number(m) -> [:^, x, m - 1]
+      true -> [:^, x, [:-, m, 1]]
     end
   end
-  def simple([:/,x,[:^,x,n]]) do
+
+  def simple([:/, x, [:^, x, n]]) do
     cond do
-      is_number(n) -> [:^,x,1-n]
-      true -> [:^,x,[:-,1,n]]
+      is_number(n) -> [:^, x, 1 - n]
+      true -> [:^, x, [:-, 1, n]]
     end
   end
 
@@ -379,7 +394,7 @@ defmodule Eval do
     end
   end
 
-  #-------exponent--------------
+  # -------exponent--------------
   def simple([:^, _, 0]) do
     1
   end
@@ -404,6 +419,7 @@ defmodule Eval do
     end
   end
 
+  #--------------math function-----------
   def simple([:log, :"%e", 1]) do
     0
   end
@@ -456,9 +472,18 @@ defmodule Eval do
     factorial(x)
   end
 
+  def simple([:. ,x,y]) do
+    if Minima.is_vector(x) && Minima.is_vector(y) do
+      Matrix.inner_product(x,y)
+    else
+      [:., x,y]
+    end
+  end
+
   def simple(x) do
     x
   end
+
 
   def power(x, y) do
     cond do

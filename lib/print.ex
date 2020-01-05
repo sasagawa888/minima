@@ -69,10 +69,13 @@ defmodule Print do
     IO.write(")")
   end
 
-  def print_matrix([]) do true end
-  def print_matrix([r|rs]) do
+  def print_matrix([]) do
+    true
+  end
+
+  def print_matrix([r | rs]) do
     :io.write(r)
-    IO.puts("");
+    IO.puts("")
     print_matrix(rs)
   end
 end
