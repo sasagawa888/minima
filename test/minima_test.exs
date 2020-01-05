@@ -43,5 +43,9 @@ defmodule MinimaTest do
     m2 = "matrix([3,4],[5,6])"
     assert capture_io(fn -> Minima.bar(m1 <> "+" <> m2 <> ";\n") end) == "[4,6]\n[8,10]\n\n"
     assert capture_io(fn -> Minima.bar(m1 <> "-" <> m2 <> ";\n") end) == "[-2,-2]\n[-2,-2]\n\n"
+    assert capture_io(fn -> Minima.bar(m1 <> "*" <> m2 <> ";\n") end) == "[13,16]\n[29,36]\n\n"
+
+    # vector
+    assert capture_io(fn -> Minima.bar("[1,2,3] . [1,2,3];\n") end) == "14\n"
   end
 end
