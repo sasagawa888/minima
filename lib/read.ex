@@ -122,6 +122,10 @@ defmodule Read do
     {fmla, buf}
   end
 
+  def read(["[" | xs]) do
+    read_list(xs, [])
+  end
+
   def read([x | xs]) do
     cond do
       is_integer_str(x) -> {String.to_integer(x), xs}
@@ -139,6 +143,15 @@ defmodule Read do
     end
   end
 
+  def read_list(buf, args) do
+    {fmla, buf1, term} = parse([], [], buf, [:",", :"]"])
+
+    cond do
+      term == :"]" -> {args ++ [fmla], buf1}
+      true -> read_list(buf1, args ++ [fmla])
+    end
+  end
+
   @doc """
   ## example
   iex>Read.tokenize("sin(x)+cos(x");)
@@ -148,8 +161,8 @@ defmodule Read do
     str
     |> String.replace("(", " ( ")
     |> String.replace(")", " ) ")
-    |> String.replace("{", " { ")
-    |> String.replace("}", " } ")
+    |> String.replace("[", " [ ")
+    |> String.replace("]", " ] ")
     |> String.replace(",", " , ")
     |> String.replace(";", " ; ")
     |> String.replace("+", " + ")
@@ -158,6 +171,7 @@ defmodule Read do
     |> String.replace("/", " / ")
     |> String.replace("^", " ^ ")
     |> String.replace("!", " ! ")
+    |> String.replace(":", " : ")
     |> String.replace("\n", " ")
     |> String.split()
   end

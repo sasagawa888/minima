@@ -33,6 +33,10 @@ defmodule Print do
     :io.write(x)
   end
 
+  def print_formula([:matrix | x]) do
+    print_matrix(x)
+  end
+
   def print_formula([:log, x, y]) do
     IO.write(:log)
     IO.write("(")
@@ -63,5 +67,12 @@ defmodule Print do
     IO.write("(")
     print_formula(arg)
     IO.write(")")
+  end
+
+  def print_matrix([]) do true end
+  def print_matrix([r|rs]) do
+    :io.write(r)
+    IO.puts("");
+    print_matrix(rs)
   end
 end

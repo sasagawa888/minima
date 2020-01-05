@@ -1,22 +1,46 @@
 defmodule Eval do
-  def eval(:quit) do
+  def eval(:quit,_) do
     throw("goodbye")
   end
 
-  def eval([:diff, fmla, arg]) do
-    diff(fmla, arg)
+  def eval(x,def) when is_number(x) do
+    {x,def}
+  end
+  def eval(x,def) when is_atom(x) do
+    val = def[x]
+    if val == nil do
+      {x,def}
+    else
+      {val,def}
+    end
   end
 
-  def eval([:integrate, fmla, arg]) do
-    integrate(fmla, arg)
+  def eval([:":", x,y],def) do
+    def1 = Keyword.put(def,x,y)
+    {y,def1}
   end
 
-  def eval([:factori, x]) when is_integer(x) do
-    prime_factorization(x)
+  def eval([:diff, fmla, arg],def) do
+    {diff(fmla, arg),def}
   end
 
-  def eval(x) do
-    simple(x)
+  def eval([:integrate, fmla, arg],def) do
+    {integrate(fmla, arg),def}
+  end
+
+  def eval([:factori, x],def) when is_integer(x) do
+    {prime_factorization(x),def}
+  end
+
+  def eval(x,def) when is_list(x) do
+    [fun|arg] = x 
+    {simple([fun|evlis(arg,def)]),def}
+  end
+
+  def evlis([],_) do [] end
+  def evlis([x|xs],def) do
+    {val,_} = eval(x,def)
+    [val|evlis(xs,def)]
   end
 
   # ----------diffrential----------------------------
