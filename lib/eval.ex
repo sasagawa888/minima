@@ -34,6 +34,11 @@ defmodule Eval do
     {prime_factorization(x), def}
   end
 
+  def eval([:transpose,x],def) do
+    {val,_} = eval(x,def)
+    {Matrix.transpose(val),def}
+  end
+
   def eval(x, def) when is_list(x) do
     [fun | arg] = x
     {simple([fun | evlis(arg, def)]), def}
@@ -322,27 +327,31 @@ defmodule Eval do
     if is_number(x) && is_number(y) do
       x + y
     else
-      x1 = simple(x)
-      y1 = simple(y)
+      if Minima.is_matrix(x) && Minima.is_matrix(y) do
+        Matrix.mult(x, y)
+      else
+        x1 = simple(x)
+        y1 = simple(y)
 
-      cond do
-        x1 == x && y1 == y ->
-          cond do
-            is_number(x) && !is_number(y) -> [:*, x, y]
-            !is_number(x) && is_number(y) -> [:*, y, x]
-            is_list(x) && !is_list(y) -> [:*, y, x]
-            !is_list(x) && is_list(y) -> [:*, x, y]
-            true -> [:*, x, y]
-          end
+        cond do
+          x1 == x && y1 == y ->
+            cond do
+              is_number(x) && !is_number(y) -> [:*, x, y]
+              !is_number(x) && is_number(y) -> [:*, y, x]
+              is_list(x) && !is_list(y) -> [:*, y, x]
+              !is_list(x) && is_list(y) -> [:*, x, y]
+              true -> [:*, x, y]
+            end
 
-        x1 == x && y1 != y ->
-          simple([:*, x, y1])
+          x1 == x && y1 != y ->
+            simple([:*, x, y1])
 
-        x1 != x && y1 == y ->
-          simple([:*, x1, y])
+          x1 != x && y1 == y ->
+            simple([:*, x1, y])
 
-        true ->
-          simple([:*, x1, y1])
+          true ->
+            simple([:*, x1, y1])
+        end
       end
     end
   end
@@ -419,7 +428,7 @@ defmodule Eval do
     end
   end
 
-  #--------------math function-----------
+  # --------------math function-----------
   def simple([:log, :"%e", 1]) do
     0
   end
@@ -472,18 +481,17 @@ defmodule Eval do
     factorial(x)
   end
 
-  def simple([:. ,x,y]) do
+  def simple([:., x, y]) do
     if Minima.is_vector(x) && Minima.is_vector(y) do
-      Matrix.inner_product(x,y)
+      Matrix.inner_product(x, y)
     else
-      [:., x,y]
+      [:., x, y]
     end
   end
 
   def simple(x) do
     x
   end
-
 
   def power(x, y) do
     cond do

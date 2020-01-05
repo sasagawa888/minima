@@ -38,10 +38,10 @@ defmodule MinimaTest do
     assert capture_io(fn -> Minima.bar("1*3-2;\n") end) == "1\n"
     assert capture_io(fn -> Minima.bar("1*3/4;\n") end) == "3/4\n"
 
-    #matrix
+    # matrix
     m1 = "matrix([1,2],[3,4])"
     m2 = "matrix([3,4],[5,6])"
-    assert capture_io(fn -> Minima.bar(m1<>"+"<>m2<>";\n") end) == "[4,6]\n[8,10]\n\n"
-    assert capture_io(fn -> Minima.bar(m1<>"-"<>m2<>";\n") end) == "[-2,-2]\n[-2,-2]\n\n"
+    assert capture_io(fn -> Minima.bar(m1 <> "+" <> m2 <> ";\n") end) == "[4,6]\n[8,10]\n\n"
+    assert capture_io(fn -> Minima.bar(m1 <> "-" <> m2 <> ";\n") end) == "[-2,-2]\n[-2,-2]\n\n"
   end
 end

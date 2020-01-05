@@ -57,13 +57,16 @@ defmodule Minima do
 
   # ----------common function--------------
   def is_operator(x) do
-    Enum.member?([:+, :-, :*, :/, :^, :":" ,:"."], x)
+    Enum.member?([:+, :-, :*, :/, :^, :":", :.], x)
   end
 
   def is_fun([x | _]) do
     Enum.member?([:sin, :cos, :tan, :log, :exp, :sqrt], x)
   end
-  def is_fun(_) do false end
+
+  def is_fun(_) do
+    false
+  end
 
   def is_heavy(x, _) when is_number(x) do
     false
@@ -109,12 +112,15 @@ defmodule Minima do
     false
   end
 
-  def is_vector([x|_]) do
+  def is_vector([x | _]) do
     if !is_operator(x) && !is_fun(x) do
       true
     else
       false
     end
   end
-  def is_vector(_) do false end
+
+  def is_vector(_) do
+    false
+  end
 end
