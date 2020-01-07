@@ -16,6 +16,14 @@ defmodule Read do
     end
   end
 
+  def parse([],[:-],buf, term) do
+    {s,buf1} = read(buf)
+    cond do 
+      is_number(s) -> parse([-1*s],[],buf1,term) 
+      true -> Minima.error("illegal formula ", s)
+    end
+  end
+
   def parse([operand1], [], buf, term) do
     # IO.inspect binding()
     {s, buf1} = read(buf)
