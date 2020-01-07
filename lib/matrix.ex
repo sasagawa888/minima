@@ -106,6 +106,12 @@ defmodule Matrix do
     [inner_product(x, y) | mult3(x, ys)]
   end
 
+  def scalar_mult(_,[]) do [] end
+  def scalar_mult(s,[m|ms]) do
+    [Enum.map(m,fn(x) -> s*x end)|scalar_mult(s,ms)]
+  end
+
+
   def transpose([_ | x]) do
     [:matrix | transpose1(x)]
   end
@@ -173,4 +179,44 @@ defmodule Matrix do
   def submatrix2([x | xs], j) do
     [x | submatrix2(xs, j - 1)]
   end
+
+  def invert([_|x]) do
+    if row_length(x) == 2 && col_length(x) == 2 do
+      a = elt(x,1,1)
+      b = elt(x,1,2)
+      c = elt(x,2,1)
+      d = elt(x,2,2)
+      det1 = a*d-c*d
+      if det1 == 0 do 
+        Minima.error("Not exist inverse" ,x)
+      else
+        det2 = 1/det1
+        m = [[d,b*-1],[c*-1,a]]
+        [:matrix|scalar_mult(det2,m)]
+      end
+    else
+      det1 = determinant1(x)
+      if det1 == 0 do 
+        Minima.error("Not exist inverse" ,x)
+      else
+        det2 = 1/det1
+        [:matrix|scalar_mult(det2,invert1(x))]
+      end
+    end 
+  end
+
+  def invert1(x) do
+    size = length(x)
+    for j <- 1..size do
+      for i <- 1..size do
+        submatrix1(x,i,j) |> determinant1() |> sign1(i,j)
+      end
+    end 
+  end
+
+  def sign1(x,i,j) do
+    s = :math.pow(-1, i + j) |> round()
+    s * x
+  end
+
 end

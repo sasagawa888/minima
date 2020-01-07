@@ -49,6 +49,11 @@ defmodule Eval do
     {Matrix.submatrix(val, i, j), def}
   end
 
+  def eval([:invert, x], def) do
+    {val,_} = eval(x,def)
+    {Matrix.invert(val),def}
+  end
+
   def eval(x, def) when is_list(x) do
     [fun | arg] = x
     {simple([fun | evlis(arg, def)]), def}
