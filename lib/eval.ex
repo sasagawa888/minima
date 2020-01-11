@@ -50,13 +50,13 @@ defmodule Eval do
   end
 
   def eval([:invert, x], def) do
-    {val,_} = eval(x,def)
-    {Matrix.invert(val),def}
+    {val, _} = eval(x, def)
+    {Matrix.invert(val), def}
   end
 
   def eval([:adjoint, x], def) do
-    {val,_} = eval(x,def)
-    {Matrix.adjoint(val),def}
+    {val, _} = eval(x, def)
+    {Matrix.adjoint(val), def}
   end
 
   def eval(x, def) when is_list(x) do
@@ -230,12 +230,14 @@ defmodule Eval do
   end
 
   def simple([:+, x, y]) do
-    if is_number(x) && is_number(y) do
-      x + y
-    else
-      if Minima.is_matrix(x) && Minima.is_matrix(y) do
+    cond do
+      is_number(x) && is_number(y) ->
+        x + y
+
+      Minima.is_matrix(x) && Minima.is_matrix(y) ->
         Matrix.add(x, y)
-      else
+
+      true ->
         x1 = simple(x)
         y1 = simple(y)
 
@@ -245,7 +247,6 @@ defmodule Eval do
           x1 != x && y1 == y -> simple([:+, x1, y])
           true -> simple([:+, x1, y1])
         end
-      end
     end
   end
 
@@ -259,12 +260,14 @@ defmodule Eval do
   end
 
   def simple([:-, x, y]) do
-    if is_number(x) && is_number(y) do
-      x - y
-    else
-      if Minima.is_matrix(x) && Minima.is_matrix(y) do
+    cond do
+      is_number(x) && is_number(y) ->
+        x - y
+
+      Minima.is_matrix(x) && Minima.is_matrix(y) ->
         Matrix.sub(x, y)
-      else
+
+      true ->
         x1 = simple(x)
         y1 = simple(y)
 
@@ -274,7 +277,6 @@ defmodule Eval do
           x1 != x && y1 == y -> simple([:-, x1, y])
           true -> simple([:-, x1, y1])
         end
-      end
     end
   end
 
@@ -344,12 +346,17 @@ defmodule Eval do
   end
 
   def simple([:*, x, y]) do
-    if is_number(x) && is_number(y) do
-      x + y
-    else
-      if Minima.is_matrix(x) && Minima.is_matrix(y) do
+    cond do
+      is_number(x) && is_number(y) ->
+        x * y
+
+      Minima.is_matrix(x) && Minima.is_matrix(y) ->
         Matrix.mult(x, y)
-      else
+
+      is_number(x) && Minima.is_matrix(y) ->
+        Matrix.scalar_mult(x, y)
+
+      true ->
         x1 = simple(x)
         y1 = simple(y)
 
@@ -372,7 +379,6 @@ defmodule Eval do
           true ->
             simple([:*, x1, y1])
         end
-      end
     end
   end
 

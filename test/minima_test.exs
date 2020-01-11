@@ -47,9 +47,12 @@ defmodule MinimaTest do
     assert capture_io(fn -> Minima.bar(m1 <> "*" <> m2 <> ";\n") end) == "[13,16]\n[29,36]\n\n"
     assert capture_io(fn -> Minima.bar("determinant(" <> m1 <> ");\n") end) == "-2\n"
     assert capture_io(fn -> Minima.bar("determinant(" <> m3 <> ");\n") end) == "137\n"
+
     assert capture_io(fn -> Minima.bar("invert(" <> m3 <> ");\n") end) ==
-     "[-0.17518248175182483,0.021897810218978103,0.12408759124087591]\n[0.583941605839416,-0.072992700729927,-0.08029197080291971]\n[-0.40145985401459855,0.17518248175182483,-0.0072992700729927005]\n\n"
-    assert capture_io(fn -> Minima.bar("adjoint(" <> m3 <> ");\n") end) == "[-24,80,-55]\n[3,-10,24]\n[17,-11,-1]\n\n"
+             "[-0.17518248175182483,0.021897810218978103,0.12408759124087591]\n[0.583941605839416,-0.072992700729927,-0.08029197080291971]\n[-0.40145985401459855,0.17518248175182483,-0.0072992700729927005]\n\n"
+
+    assert capture_io(fn -> Minima.bar("adjoint(" <> m3 <> ");\n") end) ==
+             "[-24,80,-55]\n[3,-10,24]\n[17,-11,-1]\n\n"
 
     # vector
     assert capture_io(fn -> Minima.bar("[1,2,3] . [1,2,3];\n") end) == "14\n"

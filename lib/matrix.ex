@@ -106,11 +106,17 @@ defmodule Matrix do
     [inner_product(x, y) | mult3(x, ys)]
   end
 
-  def scalar_mult(_,[]) do [] end
-  def scalar_mult(s,[m|ms]) do
-    [Enum.map(m,fn(x) -> s*x end)|scalar_mult(s,ms)]
+  def scalar_mult(s, [_ | m]) do
+    [:matrix | scalar_mult1(s, m)]
   end
 
+  def scalar_mult1(_, []) do
+    []
+  end
+
+  def scalar_mult1(s, [m | ms]) do
+    [Enum.map(m, fn x -> s * x end) | scalar_mult1(s, ms)]
+  end
 
   def transpose([_ | x]) do
     [:matrix | transpose1(x)]
@@ -140,6 +146,7 @@ defmodule Matrix do
 
   def determinant1(x) do
     size = length(x)
+
     for j <- 1..size do
       submatrix1(x, 1, j) |> determinant1() |> sign(x, 1, j)
     end
@@ -179,48 +186,51 @@ defmodule Matrix do
     [x | submatrix2(xs, j - 1)]
   end
 
-  def invert([_|x]) do
+  def invert([_ | x]) do
     det1 = determinant1(x)
-    if det1 == 0 do 
-        Minima.error("Not exist inverse" ,x)
+
+    if det1 == 0 do
+      Minima.error("Not exist inverse", x)
     else
-      det2 = 1/det1
-      [:matrix|scalar_mult(det2,invert1(x))]
-    end 
+      det2 = 1 / det1
+      [:matrix | scalar_mult1(det2, invert1(x))]
+    end
   end
 
-  def invert1([[a,b],[c,d]]) do
-    [[d,b*-1],[c*-1,a]]
+  def invert1([[a, b], [c, d]]) do
+    [[d, b * -1], [c * -1, a]]
   end
+
   def invert1(x) do
     size = length(x)
+
     for j <- 1..size do
       for i <- 1..size do
-        submatrix1(x,i,j) |> determinant1() |> sign1(i,j)
+        submatrix1(x, i, j) |> determinant1() |> sign1(i, j)
       end
-    end 
+    end
   end
 
   def adjoint([_ | x]) do
     [:matrix | adjoint1(x)]
   end
 
-  def adjoint1([[a,b],[c,d]]) do
-    [[d,b*-1],[c*-1,a]]
+  def adjoint1([[a, b], [c, d]]) do
+    [[d, b * -1], [c * -1, a]]
   end
+
   def adjoint1(x) do
     size = length(x)
+
     for i <- 1..size do
       for j <- 1..size do
-        submatrix1(x,i,j) |> determinant1() |> sign1(i,j)
+        submatrix1(x, i, j) |> determinant1() |> sign1(i, j)
       end
-    end 
+    end
   end
 
-
-  def sign1(x,i,j) do
+  def sign1(x, i, j) do
     s = :math.pow(-1, i + j) |> round()
     s * x
   end
-
 end
