@@ -36,10 +36,12 @@ integra(formula,variable);
 
 ## matrix
 - e.g. matrix([1,2],[3,4])
-- + - * operation
+- '+ - * operation
 - determinant(m)
 - transpose(m)
 - submatrix(m,i,j)
+- invert(m)
+- adjoint(m)
 
 
 ## quit

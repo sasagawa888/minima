@@ -140,7 +140,6 @@ defmodule Matrix do
 
   def determinant1(x) do
     size = length(x)
-
     for j <- 1..size do
       submatrix1(x, 1, j) |> determinant1() |> sign(x, 1, j)
     end
@@ -181,30 +180,18 @@ defmodule Matrix do
   end
 
   def invert([_|x]) do
-    if row_length(x) == 2 && col_length(x) == 2 do
-      a = elt(x,1,1)
-      b = elt(x,1,2)
-      c = elt(x,2,1)
-      d = elt(x,2,2)
-      det1 = a*d-c*d
-      if det1 == 0 do 
+    det1 = determinant1(x)
+    if det1 == 0 do 
         Minima.error("Not exist inverse" ,x)
-      else
-        det2 = 1/det1
-        m = [[d,b*-1],[c*-1,a]]
-        [:matrix|scalar_mult(det2,m)]
-      end
     else
-      det1 = determinant1(x)
-      if det1 == 0 do 
-        Minima.error("Not exist inverse" ,x)
-      else
-        det2 = 1/det1
-        [:matrix|scalar_mult(det2,invert1(x))]
-      end
+      det2 = 1/det1
+      [:matrix|scalar_mult(det2,invert1(x))]
     end 
   end
 
+  def invert1([[a,b],[c,d]]) do
+    [[d,b*-1],[c*-1,a]]
+  end
   def invert1(x) do
     size = length(x)
     for j <- 1..size do
@@ -213,6 +200,23 @@ defmodule Matrix do
       end
     end 
   end
+
+  def adjoint([_ | x]) do
+    [:matrix | adjoint1(x)]
+  end
+
+  def adjoint1([[a,b],[c,d]]) do
+    [[d,b*-1],[c*-1,a]]
+  end
+  def adjoint1(x) do
+    size = length(x)
+    for i <- 1..size do
+      for j <- 1..size do
+        submatrix1(x,i,j) |> determinant1() |> sign1(i,j)
+      end
+    end 
+  end
+
 
   def sign1(x,i,j) do
     s = :math.pow(-1, i + j) |> round()

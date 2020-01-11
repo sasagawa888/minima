@@ -54,6 +54,11 @@ defmodule Eval do
     {Matrix.invert(val),def}
   end
 
+  def eval([:adjoint, x], def) do
+    {val,_} = eval(x,def)
+    {Matrix.adjoint(val),def}
+  end
+
   def eval(x, def) when is_list(x) do
     [fun | arg] = x
     {simple([fun | evlis(arg, def)]), def}
